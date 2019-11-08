@@ -1,24 +1,34 @@
-import React, { useState, useEffect, FunctionComponent } from "react";
+import React, { FunctionComponent, Suspense, useState, useEffect } from "react";
 import Loading from "./components/Loading";
 import "./index.css";
-import { Person, fetchPerson } from "./utility/person";
+import { fetchPerson, Person } from "./utility/person";
+import { createResource, Resource } from "./utility/resource";
 import PersonCard from "./components/PersonCard";
 
+// Typescript workaround as concurrent api is not properly typed yet
+const SuspenseList = (React as any).SuspenseList;
+
 const App: FunctionComponent = () => {
-  const [isLoading, setIsLoading] = useState(true);
   const [id, setId] = useState(0);
-  const [person, setPerson] = useState<Person>();
+  const [persons, setPersons] = useState<Resource<Person>[]>([]);
 
   useEffect(() => {
-    setIsLoading(true);
-    fetchPerson(id)
-      .then(setPerson)
-      .then(() => setIsLoading(false));
+    const nextPersons = [];
+    for (let i = 0; i < 5; i++) {
+      nextPersons.push(createResource(fetchPerson(id)));
+    }
+    setPersons(nextPersons);
   }, [id]);
 
   return (
     <div className="main">
-      {!isLoading && person ? <PersonCard person={person} /> : <Loading />}
+      <SuspenseList revealOrder="forwards" tail="collapsed">
+        {persons.map((person, index) => (
+          <Suspense key={index} fallback={<Loading />}>
+            <PersonCard person={person} />
+          </Suspense>
+        ))}
+      </SuspenseList>
       <button onClick={() => setId(i => i + 1)}>Refetch</button>
     </div>
   );

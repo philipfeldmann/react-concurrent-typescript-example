@@ -1,11 +1,13 @@
 import React, { FunctionComponent } from "react";
 import { Person } from "../utility/person";
+import { Resource } from "../utility/resource";
 
 interface PersonCardProps {
-  person: Person;
+  person: Resource<Person>;
 }
 
 const PersonCard: FunctionComponent<PersonCardProps> = ({ person }) => {
+  const personData = person.read();
   return (
     <div
       style={{
@@ -22,11 +24,11 @@ const PersonCard: FunctionComponent<PersonCardProps> = ({ person }) => {
           borderRadius: "75px",
           width: "75px",
           height: "75px",
-          background: `url(${person.picture})`,
+          background: `url(${personData.picture})`,
           marginRight: "10px"
         }}
       />
-      <h2>{person.name}</h2>
+      <h2>{personData.name}</h2>
     </div>
   );
 };

@@ -22,7 +22,10 @@ export const fetchPerson = async (id: number) => {
       img.onload = resolve;
     });
 
-    return transformedPerson;
+    // Artificially create a race condition
+    return new Promise<Person>(resolve => {
+      setTimeout(() => resolve(transformedPerson), 5000 - Math.random() * 4000);
+    });
   } else {
     throw new Error(`Api responded with status ${result.status}`);
   }
