@@ -1,26 +1,27 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect, FunctionComponent } from "react";
+import Loading from "./components/Loading";
+import "./index.css";
+import { Person, fetchPerson } from "./utility/person";
+import PersonCard from "./components/PersonCard";
 
-const App: React.FC = () => {
+const App: FunctionComponent = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [id, setId] = useState(0);
+  const [person, setPerson] = useState<Person>();
+
+  useEffect(() => {
+    setIsLoading(true);
+    fetchPerson(id)
+      .then(setPerson)
+      .then(() => setIsLoading(false));
+  }, [id]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="main">
+      {!isLoading && person ? <PersonCard person={person} /> : <Loading />}
+      <button onClick={() => setId(i => i + 1)}>Refetch</button>
     </div>
   );
-}
+};
 
 export default App;
